@@ -9,7 +9,7 @@ X = digits.data
 y = digits.target
 n_samples, n_features = X.shape
 
-df = pd.read_csv('v3 output.csv', sep = ',')
+df = pd.read_csv('v3 output.csv', sep = ',', low_memory = False)
 df = df.loc[:, :'n2047']
 df = df.loc[3:,]
 dataset = df.values
