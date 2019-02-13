@@ -1,38 +1,35 @@
-from sklearn.manifold import Isomap, LocallyLinearEmbedding, SpectralEmbedding, MDS, TSNE
-from sklearn.mainfold import load_digits
-import numpy as np 
-import matplotlib as plt
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import offsetbox
+from sklearn import manifold, datasets, decomposition, discriminant_analysis
+ 
+digits = datasets.load_digits()
+X = digits.data
+y = digits.target
+n_samples, n_features = X.shape
+ 
+def embedding_plot(X, title):
+    x_min, x_max = np.min(X, axis=0), np.max(X, axis=0)
+    X = (X - x_min) / (x_max - x_min)
+ 
+    plt.figure()
+    ax = plt.subplot(aspect='equal')
+    sc = ax.scatter(X[:,0], X[:,1], lw=0, s=40, c=y/10.)
+ 
+    shown_images = np.array([[1., 1.]])
+    for i in range(X.shape[0]):
+        if np.min(np.sum((X[i] - shown_images) ** 2, axis=1)) < 1e-2: continue
+        shown_images = np.r_[shown_images, [X[i]]]
+        ax.add_artist(offsetbox.AnnotationBbox(offsetbox.OffsetImage(digits.images[i], cmap=plt.cm.gray_r), X[i]))
+ 
+    plt.xticks([]), plt.yticks([])
+    plt.title(title)
 
-X, _ = load_digits(return_X_y = True)
-print X.shape
+X_PCA = decomposition.PCA(n_components = 2).fit_transform(X)
+X_LDA = discriminant_analysis.LinearDiscriminantAnalysis(n_components = 2).fit_transform(X, y)
+X_tSNE = manifold.TSNE(n_components = 2).fit_transform(X)
 
-class ManifoldLearning(object):
-	"""docstring for ManifoldLearning"""
-	def __init__(self, dataset):
-		super(ManifoldLearning, self).__init__()
-		self.dataset = X
-
-	def doIsomap(self, dataset):
-		embed = Isomap(n_components = 2)
-		X_transformed = embed.fit_transform(dataset)
-		return X_transformed
-
-	def doLocallyLinearEmbedding(self, dataset):
-		embed = LocallyLinearEmbedding(n_components = 2)
-		X_transformed = embed.fit_transform(dataset)
-		return X_transformed
-
-	def doSpectralEmbedding(self, dataset):
-		embed = SpectralEmbedding(n_components = 2)
-		X_transformed = embed.fit_transform(dataset)
-		return X_transformed
-
-	def doMDS(self, dataset):
-		embed = MDS(n_components = 2)
-		X_transformed = embed.fit_transform(dataset)
-		return X_transformed
-
-	def doTSNE(self, dataset):
-		embed = TSNE(n_components = 2)
-		X_transformed = embed.fit_transform(dataset)
-		return X_transformed
+embedding_plot(X_PCA, "PCA")
+embedding_plot(X_LDA, "LDA")
+embedding_plot(X_tSNE, "TSNE")
+plt.show()
