@@ -21,25 +21,21 @@ def embedding_plot(X, title):
     x_min, x_max = np.min(X, axis=0), np.max(X, axis=0)
     X = (X - x_min) / (x_max - x_min)
  
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection = '3d')
-    sc = ax.scatter(X[:,0], X[:,1], X[:,2], lw=0, s=40, c=X/1.)
- 
-    # shown_images = np.array([[1., 1.]])
-    # for i in range(X.shape[0]):
-    #     if np.min(np.sum((X[i] - shown_images) ** 2, axis=1)) < 1e-2: continue
-    #     shown_images = np.r_[shown_images, [X[i]]]
-    #     ax.add_artist(offsetbox.AnnotationBbox(offsetbox.OffsetImage(digits.images[i], cmap=plt.cm.gray_r), X[i]))
+    plt.figure()
+    ax = plt.subplot(aspect = 'equal')
+    sc = ax.scatter(X[:,0], X[:,1], lw=0, s=40, c = X/1.)
  
     plt.xticks([]), plt.yticks([])
     plt.title(title)
 
 X_PCA = decomposition.PCA(n_components = 3).fit_transform(dataset)
 #X_LDA = discriminant_analysis.LinearDiscriminantAnalysis(n_components = 2).fit_transform(X, y)
-X_tSNE = manifold.TSNE(n_components = 3).fit_transform(dataset)
+X_MDS = manifold.Isomap(n_components = 3).fit_transform(dataset)
+X_LLE = manifold.LocallyLinearEmbedding(n_components = 3).fit_transform(dataset)
 
 
 embedding_plot(X_PCA, "PCA")
 #embedding_plot(X_LDA, "LDA")
-embedding_plot(X_tSNE, "TSNE")
+embedding_plot(X_MDS, "Isomap")
+embedding_plot(X_LLE, "LLE")
 plt.show()
