@@ -8,6 +8,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
 #from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
+
+import time
+
+start=time.time()
 '''X = np.array([[1, 2],
               [1.5, 1.8],
               [5, 8 ],
@@ -144,3 +148,7 @@ for i in range(len(X)):
 
 
 print(correct/len(X))
+
+end=time.time()
+
+print('Time taken to execute : ' , end-start)
