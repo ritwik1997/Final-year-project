@@ -5,6 +5,9 @@ from sklearn import preprocessing
 from sklearn.model_selection import cross_validate
 import pandas as pd
 from sklearn.cluster import KMeans
+import time
+
+
 '''X = np.array([[1, 2],
               [1.5, 1.8],
               [5, 8 ],
@@ -68,7 +71,7 @@ colors = 10*["g","r","c","b","k"]
 
 
 '''
-
+start= time.time()
 df = pd.read_csv('v3 output.csv')
 df.drop(['image','image name','size','width','height','Selected'], 1, inplace=True)
 #df.convert_objects(convert_numeric=True)
@@ -133,4 +136,7 @@ for i in range(len(X)):
         correct += 1
 
 
-print(correct/len(X)*100)
+print(correct/len(X))
+end=time.time()
+
+print('Time taken to execute : ' , end-start)
