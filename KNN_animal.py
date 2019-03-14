@@ -6,6 +6,9 @@ from sklearn.model_selection import cross_validate
 import pandas as pd
 #from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
+import time
+
+start= time.time()
 '''X = np.array([[1, 2],
               [1.5, 1.8],
               [5, 8 ],
@@ -135,3 +138,7 @@ for i in range(len(X)):
 
 
 print(correct/len(X)*100)
+
+end=time.time()
+
+print('Time taken to execute : ' , end-start)
