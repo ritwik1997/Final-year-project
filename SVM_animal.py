@@ -5,6 +5,9 @@ from sklearn import preprocessing
 from sklearn.model_selection import cross_validate
 import pandas as pd
 from sklearn.svm import SVC
+import time
+
+start=time.time()
 
 #from sklearn.cluster import KMeans
 
@@ -136,3 +139,7 @@ for i in range(len(X)):
 
 
 print(correct/len(X)*100)
+
+end=time.time()
+
+print('Time taken to execute : ' , end-start)
