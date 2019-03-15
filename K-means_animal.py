@@ -6,6 +6,13 @@ from sklearn.model_selection import cross_validate
 import pandas as pd
 from sklearn.cluster import KMeans
 import time
+#from sklearn.cluster import KMeans
+#from sklearn.neighbors import KNeighborsClassifier
+
+from sklearn.manifold import Isomap
+from sklearn import manifold, datasets, decomposition, discriminant_analysis
+from sklearn.metrics import precision_recall_fscore_support as score
+from statistics import mean 
 
 
 '''X = np.array([[1, 2],
@@ -121,22 +128,34 @@ X = preprocessing.scale(X)
 y = np.array(df['categorynumber'])
 
 
+X_MDS = manifold.MDS(n_components=500).fit_transform(X)
+#X_Isomap = manifold.Isomap(n_components=500).fit_transform(X)
+
+
 #X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.5)
 
 clf = KMeans(n_clusters=19)
-clf.fit(X)
+clf.fit(X_MDS)
+y1=[]
 
 correct = 0
-for i in range(len(X)):
+for i in range(len(X_MDS)):
 
-    predict_me = np.array(X[i].astype(float))
+    predict_me = np.array(X_MDS[i].astype(float))
     predict_me = predict_me.reshape(-1, len(predict_me))
     prediction = clf.predict(predict_me)
+    y1.append(prediction)
     if prediction == y[i]:
         correct += 1
 
 
-print(correct/len(X))
+print(correct/len(X_MDS))
 end=time.time()
 
 print('Time taken to execute : ' , end-start)
+
+precision, recall, fscore, support = score(y, y1)
+
+print('precision: {}'.format(mean(precision)))
+print('recall: {}'.format(mean(recall)))
+print('fscore: {}'.format(mean(fscore)))
