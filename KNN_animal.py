@@ -7,8 +7,11 @@ import pandas as pd
 #from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
 import time
-
-start= time.time()
+from sklearn.manifold import Isomap
+from sklearn import manifold, datasets, decomposition, discriminant_analysis
+from sklearn.metrics import precision_recall_fscore_support as score
+from statistics import mean 
+#start= time.time()
 '''X = np.array([[1, 2],
               [1.5, 1.8],
               [5, 8 ],
@@ -120,11 +123,13 @@ X = np.array(df.drop(['category'], 1).astype(float))
 X = preprocessing.scale(X)
 #print(X)
 y = np.array(df['categorynumber'])
+#print(y)
 
 
+'''
 #X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.5)
 
-neigh = KNeighborsClassifier(n_neighbors=2)
+neigh = KNeighborsClassifier(n_neighbors=3)
 neigh.fit(X,y)
 
 correct = 0
@@ -134,11 +139,47 @@ for i in range(len(X)):
     predict_me = predict_me.reshape(-1, len(predict_me))
     prediction = neigh.predict(predict_me)
     if prediction == y[i]:
+        #print(prediction,y[i])
         correct += 1
 
 
-print(correct/len(X)*100)
+print(correct/len(X))
 
 end=time.time()
 
 print('Time taken to execute : ' , end-start)
+
+'''
+
+####### After Manifold Algos
+neigh = KNeighborsClassifier(n_neighbors=3)
+X_MDS = manifold.MDS(n_components=500).fit_transform(X)
+#X_Isomap = manifold.Isomap(n_components=500).fit_transform(X)
+
+
+
+neigh.fit(X_MDS,y)
+start= time.time()
+y1= []
+correct1 = 0
+for i in range(len(X_MDS)):
+
+    predict_me1 = np.array(X_MDS[i].astype(float))
+    predict_me1 = predict_me1.reshape(-1, len(predict_me1))
+    prediction1 = neigh.predict(predict_me1)
+    y1.append(prediction1)
+    if prediction1 == y[i]:
+        #print(prediction1,y[i])
+        correct1 += 1
+
+
+print(correct1/len(X_MDS))
+
+end=time.time()
+
+print('Time taken is ', end-start)
+precision, recall, fscore, support = score(y, y1)
+
+print('precision: {}'.format(mean(precision)))
+print('recall: {}'.format(mean(recall)))
+print('fscore: {}'.format(mean(fscore)))
