@@ -6,8 +6,13 @@ from sklearn.model_selection import cross_validate
 import pandas as pd
 from sklearn.svm import SVC
 import time
+from sklearn import manifold, datasets, decomposition, discriminant_analysis
+from sklearn import svm
+from sklearn.manifold import Isomap
+from sklearn.metrics import precision_recall_fscore_support as score
+from statistics import mean 
 
-start=time.time()
+#start=time.time()
 
 #from sklearn.cluster import KMeans
 
@@ -80,8 +85,8 @@ df.drop(['image','image name','size','width','height','Selected'], 1, inplace=Tr
 #df.convert_objects(convert_numeric=True)
 #print(df.head())
 df.fillna(0,inplace=True)
-
-'''def handle_non_numerical_data(df):
+'''
+def handle_non_numerical_data(df):
     
     # handling non-numerical data: must convert.
     columns = df.columns.values
@@ -118,28 +123,46 @@ df = handle_non_numerical_data(df)
 #df.drop(['ticket','home.dest'], 1, inplace=True)
 
 
-X = np.array(df.drop(['category'], 1).astype(float))
+X = np.array(df.drop(['category','categorynumber'], 1).astype(float))
 X = preprocessing.scale(X)
 #print(X)
 y = np.array(df['categorynumber'])
 
+X_MDS = manifold.MDS(n_components=500).fit_transform(X)
+#X_Isomap = manifold.Isomap(n_components=500).fit_transform(X)
 
+
+
+start= time.time()
 #X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.5)
 clf = SVC(gamma='auto')
-clf.fit(X,y)
-
+#clf=svm.SVR()
+#clf = svm.SVC(gamma='scale')
+clf.fit(X_MDS,y)
+y1=[]
 correct = 0
-for i in range(len(X)):
+for i in range(len(X_MDS)):
 
-    predict_me = np.array(X[i].astype(float))
+    predict_me = np.array(X_MDS[i].astype(float))
     predict_me = predict_me.reshape(-1, len(predict_me))
+    
     prediction = clf.predict(predict_me)
+    y1.append(prediction)
+    #print(prediction)
     if prediction == y[i]:
+        #print(prediction,y[i])
+
         correct += 1
 
 
-print(correct/len(X)*100)
+print(correct/len(X_MDS)*100)
 
 end=time.time()
 
 print('Time taken to execute : ' , end-start)
+
+precision, recall, fscore, support = score(y, y1)
+
+print('precision: {}'.format(mean(precision)))
+print('recall: {}'.format(mean(recall)))
+print('fscore: {}'.format(mean(fscore)))
