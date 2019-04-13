@@ -85,7 +85,7 @@ colors = 10*["g","r","c","b","k"]
 
 '''
 
-df = pd.read_csv('output_terrain1.csv')
+df = pd.read_csv('output_terrain_300images.csv')
 df.drop(['image','image name','size','width','height'], 1, inplace=True)
 #df.convert_objects(convert_numeric=True)
 #print(df.head())
