@@ -81,7 +81,7 @@ from sklearn import manifold, datasets, decomposition, discriminant_analysis
 
 
 
-df = pd.read_csv('output_terrain.csv')
+df = pd.read_csv('output_terrain_300images.csv')
 df.drop(['image','image name','size','width','height'], 1, inplace=True)
 
 df.fillna(0,inplace=True)
