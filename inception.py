@@ -55,7 +55,7 @@ def make_train_and_test_sets():
 			ex = list(zip(full_filenames, [label_class] * len(filenames)))
 			num_train = int(len(filenames) * TRAIN_FRACTION)
 			train_ex.extend(ex[:num_train])
-			test_ex.extend(ex[:num_train])
+			test_ex.extend(ex[num_train:])
 	shuffler.shuffle(train_ex)
 	shuffler.shuffle(test_ex)
 	return train_ex, test_ex, classes
@@ -124,13 +124,13 @@ def display_images(images_and_classes, cols = 5):
 		plt.title(image_class)
 
 NUM_IMAGES = 15 #@param {type: 'integer'}
-display_images([(get_image(example), get_class(example)) for example in TRAIN_EXMAPLES[:NUM_IMAGES]])
+# display_images([(get_image(example), get_class(example)) for example in TRAIN_EXMAPLES[:NUM_IMAGES]])
 
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.01
 
 tf.reset_default_graph()
 
-image_module = hub.Module('https://tfhub.dev/google/imagenet/inception_v3/feature_vector/1')
+image_module = hub.Module('https://tfhub.dev/google/imagenet/mobilenet_v2_035_128/feature_vector/2')
 
 encoded_images = tf.placeholder(tf.string, shape = [None])
 image_size = hub.get_expected_image_size(image_module)
@@ -145,7 +145,7 @@ batch_images = tf.map_fn(decode_and_resize_image, encoded_images, dtype = tf.flo
 features = image_module(batch_images)
 
 def create_model(features):
-	layer = tf.layers.dense(inputs = features, units = NUM_CLASSES, activation = tf.nn.relu)
+	layer = tf.layers.dense(inputs = features, units = NUM_CLASSES, activation = None)
 	return layer
 
 logits = create_model(features)
@@ -154,7 +154,7 @@ labels = tf.placeholder(tf.float32, [None, NUM_CLASSES])
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits = logits, labels = labels)
 cross_entropy_mean = tf.reduce_mean(cross_entropy)
 
-optimizer = tf.train.AdadeltaOptimizer(learning_rate = LEARNING_RATE)
+optimizer = tf.train.GradientDescentOptimizer(learning_rate = LEARNING_RATE)
 train_op = optimizer.minimize(loss = cross_entropy_mean)
 
 probabilities = tf.nn.softmax(logits)
@@ -190,6 +190,7 @@ with tf.Session() as s:
 	for i in range(NUM_TRAIN_STEPS):
 		train_batch = get_batch(batch_size = TRAIN_BATCH_SIZE)
 		batch_images, batch_labels = get_images_and_labels(train_batch)
+		feature_vector = s.run(features, feed_dict = {encoded_images: batch_images, labels: batch_labels})
 		train_loss, _, train_accuracy = s.run([cross_entropy_mean, train_op, accuracy], feed_dict = {encoded_images: batch_images, labels: batch_labels})
 		is_final_step = (i == (NUM_TRAIN_STEPS - 1))
 		if i % EVAL_EVERY == 0 or is_final_step:
@@ -206,5 +207,6 @@ def show_confusion_matrix(test_labels, predictions):
 	plt.title("Confusion Matrix")
 	plt.ylabel("True labels")
 	plt.xlabel("Predicted labels")
+	plt.show()
 
 show_confusion_matrix(batch_labels, test_prediction)
